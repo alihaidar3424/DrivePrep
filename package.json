@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/generate-icons.mjs && next dev",
     "build": "prisma generate && node scripts/sync-guideline-images.mjs && node scripts/generate-icons.mjs && next build",
     "start": "next start",
     "lint": "eslint",

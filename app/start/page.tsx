@@ -23,6 +23,7 @@ export default async function StartPage({ searchParams }: StartPageProps) {
       showBottomNav
       langBasePath="/start"
       backHref={withLang("/", lang)}
+      backLabel={t(lang, "navHome")}
     >
       <PageContainer withBottomNav className="page-stack">
         <div className="space-y-2">

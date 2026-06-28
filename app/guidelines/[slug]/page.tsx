@@ -38,6 +38,7 @@ export default async function GuidelineArticlePage({
       showBottomNav
       langBasePath={`/guidelines/${slug}`}
       backHref={withLang("/guidelines", lang)}
+      backLabel={t(lang, "guidelinesNav")}
     >
       <PageContainer withBottomNav className="page-stack">
         <nav className="text-xs text-muted-foreground">

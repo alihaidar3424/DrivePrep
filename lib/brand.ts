@@ -9,6 +9,7 @@ export const BRAND = {
   colors: {
     emerald: "#065f46",
     teal: "#0d9488",
+    tealHover: "#0f766e",
     gold: "#fbbf24",
     ink: "#0f172a",
   },

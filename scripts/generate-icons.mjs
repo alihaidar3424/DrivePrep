@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
@@ -23,6 +24,8 @@ async function writePng(svg, filePath, size) {
 }
 
 const outDir = join(ROOT, "public", "icons");
+const appDir = join(ROOT, "app");
+const publicDir = join(ROOT, "public");
 mkdirSync(outDir, { recursive: true });
 
 await writePng(markSvg, join(outDir, "icon-192.png"), 192);
@@ -34,4 +37,27 @@ writeFileSync(
   await sharp(join(outDir, "icon-192.png")).png().toBuffer(),
 );
 
-console.log("Generated RaahPass PWA icons in public/icons/");
+// Browser tab favicon (Next.js app/ file conventions)
+await writePng(markSvg, join(appDir, "icon.png"), 32);
+await writePng(markSvg, join(appDir, "apple-icon.png"), 180);
+
+// Legacy /favicon.ico request + multi-size PNG fallbacks
+const favicon16 = join(publicDir, "favicon-16.png");
+const favicon32 = join(publicDir, "favicon-32.png");
+await writePng(markSvg, favicon16, 16);
+await writePng(markSvg, favicon32, 32);
+
+try {
+  execSync(
+    `magick "${favicon16}" "${favicon32}" "${join(appDir, "favicon.ico")}"`,
+    { stdio: "ignore" },
+  );
+  execSync(`cp "${join(appDir, "favicon.ico")}" "${join(publicDir, "favicon.ico")}"`, {
+    stdio: "ignore",
+  });
+} catch {
+  // ImageMagick unavailable — 32px PNG still works via metadata + app/icon.png
+  writeFileSync(join(publicDir, "favicon.ico"), readFileSync(favicon32));
+}
+
+console.log("Generated RaahPass favicon + PWA icons");

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { withLang } from "@/lib/language";
 import type { Language } from "@/lib/validations";
@@ -14,6 +15,7 @@ type AppShellProps = {
   nav?: "home" | "guidelines" | "start" | "none";
   showBottomNav?: boolean;
   backHref?: string;
+  backLabel?: string;
   langBasePath?: string;
   children: React.ReactNode;
 };
@@ -24,9 +26,12 @@ export function AppShell({
   nav = "none",
   showBottomNav = false,
   backHref,
+  backLabel,
   langBasePath = "/",
   children,
 }: AppShellProps) {
+  const BackChevron = rtl ? ChevronRight : ChevronLeft;
+
   return (
     <div dir={rtl ? "rtl" : "ltr"} className={cn("min-h-dvh bg-background", rtl && "urdu-text")}>
       <InstallPrompt lang={lang} />
@@ -35,19 +40,26 @@ export function AppShell({
         style={{ backgroundColor: "var(--header)" }}
       >
         <div className="mx-auto flex h-16 max-w-lg items-center justify-between gap-2 px-4 sm:px-5">
-          <div className="flex min-w-0 items-center gap-1">
+          <div className="flex min-w-0 flex-1 items-center">
             {backHref ? (
               <Link
                 href={backHref}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                aria-label={t(lang, "back")}
+                className={cn(
+                  "inline-flex min-h-11 min-w-0 max-w-[min(100%,14rem)] items-center gap-0.5 rounded-lg px-1 text-foreground transition-colors hover:bg-muted",
+                  rtl && "urdu-text",
+                )}
+                aria-label={backLabel ?? t(lang, "back")}
               >
-                ←
+                <BackChevron className="h-5 w-5 shrink-0" aria-hidden />
+                <span className="truncate text-sm font-semibold">
+                  {backLabel ?? t(lang, "back")}
+                </span>
               </Link>
-            ) : null}
-            <Link href={withLang("/", lang)} className="min-w-0">
-              <AppLogo lang={lang} size="sm" />
-            </Link>
+            ) : (
+              <Link href={withLang("/", lang)} className="min-w-0">
+                <AppLogo lang={lang} size="sm" />
+              </Link>
+            )}
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle lang={lang} />

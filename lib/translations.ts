@@ -47,6 +47,7 @@ type TranslationKey =
   | "close"
   | "navHome"
   | "back"
+  | "guidelinesNav"
   | "trustLine"
   | "guidelinesTitle"
   | "guidelinesSubtitle"
@@ -116,6 +117,7 @@ const en: Record<TranslationKey, string> = {
   close: "Close",
   navHome: "Home",
   back: "Back",
+  guidelinesNav: "Guidelines",
   trustLine: "No account required · 20 questions · Free practice",
   guidelinesTitle: "Driving Guidelines",
   guidelinesSubtitle: "Study official-style driving rules before your practice test.",
@@ -186,6 +188,7 @@ const ur: Record<TranslationKey, string> = {
   close: "بند",
   navHome: "ہوم",
   back: "واپس",
+  guidelinesNav: "ہدایات",
   trustLine: "اکاؤنٹ نہیں چاہیے · 20 سوالات · مفت مشق",
   guidelinesTitle: "ڈرائیونگ ہدایات",
   guidelinesSubtitle: "پریکٹس ٹیسٹ سے پہلے سرکاری انداز کے قوانین پڑھیں۔",

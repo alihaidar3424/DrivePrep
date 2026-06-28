@@ -12,8 +12,8 @@ export function Card({ children, className, accent = "none" }: CardProps) {
       className={cn(
         "rounded-xl border border-border bg-card p-4 shadow-sm",
         accent === "primary" && "border-l-4 border-l-primary",
-        accent === "success" && "border-green-500/40 dark:border-green-500/30",
-        accent === "danger" && "border-red-500/40 dark:border-red-500/30",
+        accent === "success" && "border-l-4 border-l-success",
+        accent === "danger" && "border-l-4 border-l-destructive",
         className,
       )}
     >
