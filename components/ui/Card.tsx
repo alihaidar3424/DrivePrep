@@ -25,7 +25,7 @@ export function Card({ children, className, accent = "none" }: CardProps) {
 export function inputClassName(className?: string) {
   return cn(
     "min-h-11 w-full rounded-xl border border-border bg-input px-4 text-base text-foreground",
-    "placeholder:text-muted-foreground outline-none transition-colors",
+    "placeholder:text-muted-foreground outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50",
     "focus:border-primary focus:ring-2 focus:ring-primary/25",
     className,
   );

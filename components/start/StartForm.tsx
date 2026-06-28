@@ -22,7 +22,7 @@ export function StartForm({ lang }: StartFormProps) {
   const [state, formAction, pending] = useActionState(createAttemptFormAction, null);
 
   return (
-    <form action={formAction} className="section-stack">
+    <form action={formAction} className="section-stack" aria-busy={pending || undefined}>
       <input type="hidden" name="language" value={lang} />
 
       {state?.error ? (
@@ -39,6 +39,7 @@ export function StartForm({ lang }: StartFormProps) {
           required
           minLength={2}
           maxLength={100}
+          disabled={pending}
           placeholder={t(lang, "namePlaceholder")}
           className={inputClassName()}
         />
@@ -52,6 +53,7 @@ export function StartForm({ lang }: StartFormProps) {
           minLength={10}
           maxLength={20}
           inputMode="tel"
+          disabled={pending}
           placeholder={t(lang, "phonePlaceholder")}
           className={inputClassName()}
         />
@@ -61,8 +63,8 @@ export function StartForm({ lang }: StartFormProps) {
         <p className={mutedTextClassName("leading-6")}>{t(lang, "privacyNote")}</p>
       </Card>
 
-      <Button type="submit" fullWidth size="lg" disabled={pending}>
-        {pending ? t(lang, "submitting") : t(lang, "startTest")}
+      <Button type="submit" fullWidth size="lg" loading={pending} disabled={pending}>
+        {t(lang, "startTest")}
       </Button>
     </form>
   );

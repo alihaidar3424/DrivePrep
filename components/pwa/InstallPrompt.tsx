@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import type { Language } from "@/lib/validations";
 import { PWA_DISMISS_KEY } from "@/lib/constants";
 import { t } from "@/lib/translations";
@@ -13,6 +14,7 @@ type InstallPromptProps = {
 export function InstallPrompt({ lang }: InstallPromptProps) {
   const [visible, setVisible] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installing, setInstalling] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -35,10 +37,16 @@ export function InstallPrompt({ lang }: InstallPromptProps) {
   }
 
   async function install() {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    setDeferredPrompt(null);
-    setVisible(false);
+    if (!deferredPrompt || installing) return;
+
+    setInstalling(true);
+    try {
+      await deferredPrompt.prompt();
+      setDeferredPrompt(null);
+      setVisible(false);
+    } finally {
+      setInstalling(false);
+    }
   }
 
   if (!visible) return null;
@@ -54,18 +62,23 @@ export function InstallPrompt({ lang }: InstallPromptProps) {
       </div>
       <div className="flex items-center gap-1">
         {deferredPrompt ? (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="md"
+            loading={installing}
+            disabled={installing}
             onClick={install}
-            className="min-h-9 rounded-lg px-3 text-sm font-semibold hover:bg-white/10"
+            className="min-h-9 rounded-lg px-3 text-sm font-semibold text-[var(--banner-foreground)] hover:bg-white/10"
           >
-            {t(lang, "install")}
-          </button>
+            {installing ? t(lang, "installing") : t(lang, "install")}
+          </Button>
         ) : null}
         <button
           type="button"
           onClick={dismiss}
-          className="flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-white/10"
+          disabled={installing}
+          className="flex min-h-9 min-w-9 items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-50"
           aria-label={t(lang, "close")}
         >
           <X className="h-5 w-5" />

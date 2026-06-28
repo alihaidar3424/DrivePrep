@@ -19,6 +19,8 @@ type TranslationKey =
   | "privacyNote"
   | "startTest"
   | "questionOf"
+  | "timeRemaining"
+  | "timeUp"
   | "previous"
   | "next"
   | "submitTest"
@@ -45,6 +47,7 @@ type TranslationKey =
   | "errorInsufficientQuestions"
   | "installPrompt"
   | "install"
+  | "installing"
   | "close"
   | "navHome"
   | "back"
@@ -88,8 +91,10 @@ const en: Record<TranslationKey, string> = {
   phonePlaceholder: "03XX XXXXXXX",
   privacyNote:
     "Your name and phone are saved with this attempt for practice records and optional follow-up from driving guidance providers.",
-  startTest: "Start Test — 20 Questions",
+  startTest: "Start Test — 20 Questions, 10 Minutes",
   questionOf: "Question {current} of {total}",
+  timeRemaining: "Time remaining",
+  timeUp: "Time's up — submitting your test…",
   previous: "Previous",
   next: "Next",
   submitTest: "Submit Test",
@@ -117,11 +122,12 @@ const en: Record<TranslationKey, string> = {
   errorInsufficientQuestions: "Not enough questions available. Please try again later.",
   installPrompt: "Install app for quick access",
   install: "Install",
+  installing: "Installing…",
   close: "Close",
   navHome: "Home",
   back: "Back",
   guidelinesNav: "Guidelines",
-  trustLine: "No account required · 20 questions · Free practice",
+  trustLine: "No account required · 20 questions · 10 minutes · Free practice",
   guidelinesTitle: "Driving Guidelines",
   guidelinesSubtitle: "Study official-style driving rules before your practice test.",
   readArticle: "Read",
@@ -161,8 +167,10 @@ const ur: Record<TranslationKey, string> = {
   phonePlaceholder: "03XX XXXXXXX",
   privacyNote:
     "آپ کا نام اور فون نمبر اس ٹیسٹ کے ساتھ محفوظ کیا جائے گا تاکہ پریکٹس ریکارڈ اور ڈرائیونگ گائیڈنس فراہم کنندگان رابطہ کر سکیں۔",
-  startTest: "ٹیسٹ شروع کریں — 20 سوالات",
+  startTest: "ٹیسٹ شروع کریں — 20 سوالات، 10 منٹ",
   questionOf: "سوال {current} از {total}",
+  timeRemaining: "باقی وقت",
+  timeUp: "وقت ختم — ٹیسٹ جمع ہو رہا ہے…",
   previous: "پچھلا",
   next: "اگلا",
   submitTest: "ٹیسٹ جمع کریں",
@@ -190,11 +198,12 @@ const ur: Record<TranslationKey, string> = {
   errorInsufficientQuestions: "کافی سوالات دستیاب نہیں۔ بعد میں دوبارہ کوشش کریں۔",
   installPrompt: "فوری رسائی کے لیے ایپ انسٹال کریں",
   install: "انسٹال",
+  installing: "انسٹال ہو رہا ہے…",
   close: "بند",
   navHome: "ہوم",
   back: "واپس",
   guidelinesNav: "ہدایات",
-  trustLine: "اکاؤنٹ نہیں چاہیے · 20 سوالات · مفت مشق",
+  trustLine: "اکاؤنٹ نہیں چاہیے · 20 سوالات · 10 منٹ · مفت مشق",
   guidelinesTitle: "ڈرائیونگ ہدایات",
   guidelinesSubtitle: "پریکٹس ٹیسٹ سے پہلے سرکاری انداز کے قوانین پڑھیں۔",
   readArticle: "پڑھیں",

@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { GuidelineListItem } from "@/lib/guidelines";
 import { withLang } from "@/lib/language";
 import type { Language } from "@/lib/validations";
 import { t } from "@/lib/translations";
 import { Card, mutedTextClassName } from "@/components/ui/Card";
+import { NavLink } from "@/components/ui/NavLink";
 
 type GuidelineCardProps = {
   item: GuidelineListItem;
@@ -13,7 +13,7 @@ type GuidelineCardProps = {
 
 export function GuidelineCard({ item, lang }: GuidelineCardProps) {
   return (
-    <Link href={withLang(`/guidelines/${item.slug}`, lang)} className="block">
+    <NavLink href={withLang(`/guidelines/${item.slug}`, lang)} className="block">
       <Card className="transition-colors hover:border-primary/40">
         <p className="text-xs font-medium uppercase tracking-wide text-primary">{item.category}</p>
         <h2 className="mt-1 text-lg font-semibold text-card-foreground">{item.title}</h2>
@@ -23,6 +23,6 @@ export function GuidelineCard({ item, lang }: GuidelineCardProps) {
           <ChevronRight className="h-4 w-4" />
         </span>
       </Card>
-    </Link>
+    </NavLink>
   );
 }

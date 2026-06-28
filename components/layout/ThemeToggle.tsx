@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useBusyLock } from "@/lib/hooks/useBusyLock";
 import type { Language } from "@/lib/validations";
 import { t } from "@/lib/translations";
 
@@ -14,6 +15,7 @@ type ThemeToggleProps = {
 export function ThemeToggle({ lang }: ThemeToggleProps) {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const { busy, run } = useBusyLock(350);
 
   useEffect(() => setMounted(true), []);
 
@@ -31,11 +33,15 @@ export function ThemeToggle({ lang }: ThemeToggleProps) {
   return (
     <button
       type="button"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      disabled={busy}
+      onClick={() => {
+        run(() => setTheme(isDark ? "light" : "dark"));
+      }}
       className={cn(
         "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
         "border border-border bg-card text-foreground transition-colors",
         "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+        "disabled:opacity-50",
       )}
       aria-label={isDark ? t(lang, "lightMode") : t(lang, "darkMode")}
       title={isDark ? t(lang, "lightMode") : t(lang, "darkMode")}

@@ -8,6 +8,7 @@ type QuestionGridProps = {
   currentIndex: number;
   answers: Record<string, CorrectOption>;
   questionIds: string[];
+  disabled?: boolean;
   onJump: (index: number) => void;
 };
 
@@ -16,10 +17,11 @@ export function QuestionGrid({
   currentIndex,
   answers,
   questionIds,
+  disabled = false,
   onJump,
 }: QuestionGridProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className={cn("flex flex-wrap gap-2", disabled && "pointer-events-none opacity-50")}>
       {Array.from({ length: total }, (_, index) => {
         const id = questionIds[index];
         const answered = id ? Boolean(answers[id]) : false;
@@ -29,6 +31,7 @@ export function QuestionGrid({
           <button
             key={id ?? index}
             type="button"
+            disabled={disabled}
             onClick={() => onJump(index)}
             className={cn(
               "flex h-9 w-9 items-center justify-center rounded-lg text-xs font-semibold transition-colors",

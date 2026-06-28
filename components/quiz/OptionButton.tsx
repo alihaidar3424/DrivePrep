@@ -7,6 +7,7 @@ type OptionButtonProps = {
   optionKey: CorrectOption;
   label: string;
   selected: boolean;
+  disabled?: boolean;
   onSelect: (key: CorrectOption) => void;
   rtl?: boolean;
 };
@@ -15,18 +16,21 @@ export function OptionButton({
   optionKey,
   label,
   selected,
+  disabled = false,
   onSelect,
   rtl = false,
 }: OptionButtonProps) {
   return (
     <button
       type="button"
+      disabled={disabled}
       onClick={() => onSelect(optionKey)}
       className={cn(
         "flex min-h-14 w-full items-center gap-3 rounded-xl border px-4 py-3 text-start transition-colors",
         selected
           ? "border-primary bg-accent text-accent-foreground"
           : "border-border bg-card text-card-foreground hover:border-primary/40 hover:bg-muted/50",
+        disabled && "pointer-events-none opacity-50",
         rtl && "flex-row-reverse text-right",
       )}
     >

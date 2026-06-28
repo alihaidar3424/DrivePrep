@@ -234,7 +234,8 @@ export async function getQuizQuestions(attemptId: string): Promise<{
 
 export async function submitQuiz(input: {
   attemptId: string;
-  answers: { attemptQuestionId: string; selectedOption: CorrectOption }[];
+  timedOut?: boolean;
+  answers: { attemptQuestionId: string; selectedOption?: CorrectOption }[];
 }): Promise<{ correctAnswers: number; wrongAnswers: number; percentage: number; status: "PASS" | "FAIL" }> {
   const parsed = submitQuizSchema.parse(input);
 
@@ -274,6 +275,17 @@ export async function submitQuiz(input: {
       );
       if (!row) continue;
 
+      if (!answer.selectedOption) {
+        await tx.attemptQuestion.update({
+          where: { id: answer.attemptQuestionId },
+          data: {
+            selectedOption: null,
+            isCorrect: false,
+          },
+        });
+        continue;
+      }
+
       const isCorrect = row.question.correctOption === answer.selectedOption;
       if (isCorrect) correctAnswers += 1;
 
@@ -310,7 +322,8 @@ export async function submitQuiz(input: {
 
 export async function submitQuizAndRedirect(input: {
   attemptId: string;
-  answers: { attemptQuestionId: string; selectedOption: CorrectOption }[];
+  timedOut?: boolean;
+  answers: { attemptQuestionId: string; selectedOption?: CorrectOption }[];
 }): Promise<void> {
   await submitQuiz(input);
   redirect(`/result/${input.attemptId}`);

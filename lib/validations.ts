@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const QUIZ_SIZE = 20;
 export const PASS_THRESHOLD = 70;
+export const QUIZ_DURATION_MS = 10 * 60 * 1000;
 
 export const languageSchema = z.enum(["en", "ur"]);
 
@@ -20,16 +21,29 @@ export const createAttemptSchema = z.object({
   language: languageSchema,
 });
 
-export const submitQuizSchema = z.object({
-  attemptId: z.string().min(1),
-  answers: z
-    .array(
-      z.object({
-        attemptQuestionId: z.string().min(1),
-        selectedOption: z.enum(["A", "B", "C", "D"]),
-      }),
-    )
-    .length(QUIZ_SIZE, `All ${QUIZ_SIZE} questions must be answered`),
-});
+export const submitQuizSchema = z
+  .object({
+    attemptId: z.string().min(1),
+    timedOut: z.boolean().optional().default(false),
+    answers: z
+      .array(
+        z.object({
+          attemptQuestionId: z.string().min(1),
+          selectedOption: z.enum(["A", "B", "C", "D"]).optional(),
+        }),
+      )
+      .length(QUIZ_SIZE),
+  })
+  .superRefine((data, ctx) => {
+    if (data.timedOut) return;
+    const allAnswered = data.answers.every((answer) => answer.selectedOption !== undefined);
+    if (!allAnswered) {
+      ctx.addIssue({
+        code: "custom",
+        message: `All ${QUIZ_SIZE} questions must be answered`,
+        path: ["answers"],
+      });
+    }
+  });
 
 export type Language = z.infer<typeof languageSchema>;

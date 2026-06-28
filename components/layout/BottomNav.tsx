@@ -1,9 +1,11 @@
-import Link from "next/link";
+"use client";
+
 import { BookOpen, Home, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { withLang } from "@/lib/language";
 import type { Language } from "@/lib/validations";
 import { t } from "@/lib/translations";
+import { NavLink } from "@/components/ui/NavLink";
 
 type BottomNavProps = {
   lang: Language;
@@ -37,7 +39,7 @@ export function BottomNav({ lang, active }: BottomNavProps) {
           const Icon = item.icon;
           const isActive = active === item.key;
           return (
-            <Link
+            <NavLink
               key={item.key}
               href={item.href}
               className={cn(
@@ -47,7 +49,7 @@ export function BottomNav({ lang, active }: BottomNavProps) {
             >
               <Icon className="mb-0.5 h-5 w-5" aria-hidden />
               <span className="max-w-[4.5rem] truncate">{item.label}</span>
-            </Link>
+            </NavLink>
           );
         })}
       </div>

@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { CorrectOption } from "@/generated/prisma/client";
 import { OptionButton } from "@/components/quiz/OptionButton";
 import { ProgressBar } from "@/components/quiz/ProgressBar";
 import { QuestionGrid } from "@/components/quiz/QuestionGrid";
+import { QuizSkeleton } from "@/components/quiz/QuizSkeleton";
+import { QuizTimer } from "@/components/quiz/QuizTimer";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 import { quizProgressKey } from "@/lib/constants";
+import { useDebouncedCallback } from "@/lib/hooks/useDebouncedCallback";
 import { submitQuizAndRedirect, type QuizQuestionDto } from "@/lib/quiz";
 import { dirForLanguage, t, tf } from "@/lib/translations";
 import type { Language } from "@/lib/validations";
-import { QUIZ_SIZE } from "@/lib/validations";
+import { QUIZ_DURATION_MS, QUIZ_SIZE } from "@/lib/validations";
+import { cn } from "@/lib/utils";
 
 type QuizClientProps = {
   attemptId: string;
@@ -23,18 +28,34 @@ type QuizClientProps = {
 type SavedProgress = {
   answers: Record<string, CorrectOption>;
   index: number;
+  startedAt: number;
 };
 
 function storageKey(attemptId: string) {
   return quizProgressKey(attemptId);
 }
 
+function buildSubmitPayload(
+  questions: QuizQuestionDto[],
+  answers: Record<string, CorrectOption>,
+) {
+  return questions.map((question) => ({
+    attemptQuestionId: question.attemptQuestionId,
+    ...(answers[question.attemptQuestionId]
+      ? { selectedOption: answers[question.attemptQuestionId] }
+      : {}),
+  }));
+}
+
 export function QuizClient({ attemptId, language, questions }: QuizClientProps) {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, CorrectOption>>({});
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [remainingMs, setRemainingMs] = useState(QUIZ_DURATION_MS);
   const [hydrated, setHydrated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const autoSubmittedRef = useRef(false);
 
   const rtl = dirForLanguage(language) === "rtl";
   const current = questions[index];
@@ -43,82 +64,125 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
     () => questions.map((question) => question.attemptQuestionId),
     [questions],
   );
-
-  const payload = useMemo(
-    () =>
-      questions.map((question) => ({
-        attemptQuestionId: question.attemptQuestionId,
-        selectedOption: answers[question.attemptQuestionId],
-      })),
-    [answers, questions],
-  );
+  const isLocked = isPending || autoSubmittedRef.current;
+  const isLockedRef = useRef(isLocked);
+  isLockedRef.current = isLocked;
 
   useEffect(() => {
     const raw = sessionStorage.getItem(storageKey(attemptId));
+    const now = Date.now();
+
     if (raw) {
       try {
-        const saved = JSON.parse(raw) as SavedProgress;
+        const saved = JSON.parse(raw) as Partial<SavedProgress>;
         setAnswers(saved.answers ?? {});
         setIndex(saved.index ?? 0);
+        setStartedAt(saved.startedAt ?? now);
       } catch {
         sessionStorage.removeItem(storageKey(attemptId));
+        setStartedAt(now);
       }
+    } else {
+      setStartedAt(now);
     }
+
     setHydrated(true);
   }, [attemptId]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    sessionStorage.setItem(storageKey(attemptId), JSON.stringify({ answers, index }));
-  }, [answers, index, attemptId, hydrated]);
+    if (!hydrated || startedAt === null) return;
+    sessionStorage.setItem(
+      storageKey(attemptId),
+      JSON.stringify({ answers, index, startedAt }),
+    );
+  }, [answers, index, startedAt, attemptId, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || startedAt === null) return;
+
+    const tick = () => {
+      setRemainingMs(Math.max(0, QUIZ_DURATION_MS - (Date.now() - startedAt)));
+    };
+
+    tick();
+    const intervalId = window.setInterval(tick, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [hydrated, startedAt]);
+
+  const submitTest = useCallback(
+    (timedOut: boolean) => {
+      if (autoSubmittedRef.current || isPending) return;
+
+      if (!timedOut && answeredCount < QUIZ_SIZE) {
+        const firstUnanswered = questions.findIndex((q) => !answers[q.attemptQuestionId]);
+        setError(t(language, "allQuestionsRequired"));
+        setIndex(firstUnanswered === -1 ? 0 : firstUnanswered);
+        return;
+      }
+
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        setError(t(language, "offlineMessage"));
+        return;
+      }
+
+      autoSubmittedRef.current = true;
+      setError(timedOut ? t(language, "timeUp") : null);
+
+      startTransition(async () => {
+        try {
+          await submitQuizAndRedirect({
+            attemptId,
+            timedOut,
+            answers: buildSubmitPayload(questions, answers),
+          });
+          sessionStorage.removeItem(storageKey(attemptId));
+        } catch {
+          autoSubmittedRef.current = false;
+          setError(t(language, "errorAlreadySubmitted"));
+        }
+      });
+    },
+    [answeredCount, answers, attemptId, isPending, language, questions],
+  );
+
+  useEffect(() => {
+    if (!hydrated || startedAt === null || remainingMs > 0) return;
+    submitTest(true);
+  }, [hydrated, remainingMs, startedAt, submitTest]);
+
+  const jumpToQuestion = useDebouncedCallback((nextIndex: number) => {
+    if (isLockedRef.current) return;
+    setIndex(nextIndex);
+  }, 120);
 
   function selectOption(option: CorrectOption) {
-    if (!current) return;
+    if (!current || isLocked) return;
     setAnswers((prev) => ({ ...prev, [current.attemptQuestionId]: option }));
   }
 
-  function firstUnansweredIndex(): number {
-    const idx = questions.findIndex((q) => !answers[q.attemptQuestionId]);
-    return idx === -1 ? 0 : idx;
-  }
-
-  function handleSubmit() {
-    if (answeredCount < QUIZ_SIZE) {
-      setError(t(language, "allQuestionsRequired"));
-      setIndex(firstUnansweredIndex());
-      return;
-    }
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      setError(t(language, "offlineMessage"));
-      return;
-    }
-    setError(null);
-    startTransition(async () => {
-      try {
-        await submitQuizAndRedirect({
-          attemptId,
-          answers: payload as { attemptQuestionId: string; selectedOption: CorrectOption }[],
-        });
-        sessionStorage.removeItem(storageKey(attemptId));
-      } catch {
-        setError(t(language, "errorAlreadySubmitted"));
-      }
-    });
-  }
-
-  if (!hydrated || !current) {
-    return (
-      <PageContainer>
-        <p className="text-center text-muted-foreground">{t(language, "loading")}</p>
-      </PageContainer>
-    );
+  if (!hydrated || !current || startedAt === null) {
+    return <QuizSkeleton />;
   }
 
   return (
-    <div dir={dirForLanguage(language)} className={rtl ? "urdu-text" : ""}>
-      <PageContainer className="section-stack">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+    <div dir={dirForLanguage(language)} className={cn("relative", rtl && "urdu-text")}>
+      {isPending ? (
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/60 backdrop-blur-[1px]"
+          aria-live="polite"
+          aria-busy
+        >
+          <div className="flex items-center gap-2 rounded-full bg-card px-4 py-2 text-sm font-medium text-foreground shadow-md">
+            <Spinner className="size-4" />
+            {t(language, "submitting")}
+          </div>
+        </div>
+      ) : null}
+
+      <PageContainer className={cn("section-stack", isPending && "pointer-events-none")}>
+        <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
           <span>{tf(language, "questionOf", { current: index + 1, total: QUIZ_SIZE })}</span>
+          <QuizTimer remainingMs={remainingMs} language={language} />
           <span>
             {answeredCount}/{QUIZ_SIZE}
           </span>
@@ -130,7 +194,8 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
           currentIndex={index}
           answers={answers}
           questionIds={questionIds}
-          onJump={setIndex}
+          disabled={isLocked}
+          onJump={jumpToQuestion}
         />
 
         <Card>
@@ -146,6 +211,7 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
               optionKey={option.key}
               label={option.label}
               selected={answers[current.attemptQuestionId] === option.key}
+              disabled={isLocked}
               onSelect={selectOption}
               rtl={rtl}
             />
@@ -159,18 +225,29 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
             type="button"
             variant="secondary"
             className="flex-1"
-            disabled={index === 0}
+            disabled={index === 0 || isLocked}
             onClick={() => setIndex((v) => Math.max(0, v - 1))}
           >
             {t(language, "previous")}
           </Button>
           {index < questions.length - 1 ? (
-            <Button type="button" className="flex-1" onClick={() => setIndex((v) => v + 1)}>
+            <Button
+              type="button"
+              className="flex-1"
+              disabled={isLocked}
+              onClick={() => setIndex((v) => v + 1)}
+            >
               {t(language, "next")}
             </Button>
           ) : (
-            <Button type="button" className="flex-1" disabled={isPending} onClick={handleSubmit}>
-              {isPending ? t(language, "submitting") : t(language, "submitTest")}
+            <Button
+              type="button"
+              className="flex-1"
+              loading={isPending}
+              disabled={isLocked}
+              onClick={() => submitTest(false)}
+            >
+              {t(language, "submitTest")}
             </Button>
           )}
         </div>
