@@ -14,7 +14,7 @@ Bilingual driving test practice app for Pakistan. Learners take 20-question mock
 |-------|------------|
 | Frontend | Next.js 16 (App Router), React 19, Tailwind CSS 4 |
 | Backend | Next.js Server Actions |
-| Database | PostgreSQL + Prisma 6 |
+| Database | PostgreSQL + Prisma 7 (`@prisma/adapter-pg`) |
 | Validation | Zod |
 | Tests | Vitest |
 
@@ -30,7 +30,7 @@ Bilingual driving test practice app for Pakistan. Learners take 20-question mock
 # 1. Clone and install
 git clone https://github.com/alihaidar3424/RaahPass.git
 cd RaahPass
-npm install
+npm install   # postinstall runs prisma generate
 
 # 2. Environment
 cp .env.example .env
@@ -48,6 +48,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Prisma 7 notes
+
+- **`DATABASE_URL`** lives in `.env` and is loaded via `prisma.config.ts` (not in `schema.prisma`).
+- The client is generated to **`generated/prisma`** and imported from `@/generated/prisma/client`.
+- Runtime queries use the **`@prisma/adapter-pg`** driver adapter with the `pg` package (`lib/prisma.ts`).
+
 ## Scripts
 
 | Command | Description |
@@ -56,6 +62,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm test` | Run unit tests |
+| `npm run db:generate` | Generate Prisma client to `generated/prisma` |
 | `npm run db:push` | Sync Prisma schema to database |
 | `npm run db:migrate` | Create/apply migrations (dev) |
 | `npm run db:migrate:deploy` | Apply migrations (production) |
@@ -68,8 +75,10 @@ Open [http://localhost:3000](http://localhost:3000).
 app/                  # Next.js pages (home, start, quiz, result, review, guidelines)
 components/           # UI components (quiz, layout, PWA)
 data/                 # Seed source: questions JSON + guidelines TS
-lib/                  # Server actions, translations, validations
-prisma/               # Schema, migrations, seed script
+lib/                  # Server actions, translations, validations (prisma.ts uses driver adapter)
+prisma/               # Schema and migrations
+prisma.config.ts      # Prisma 7 config (datasource URL, seed command)
+generated/            # Prisma client output (gitignored; created by db:generate)
 public/               # PWA icons, service worker
 reference/            # Local-only source PDFs, images, design mocks (gitignored)
 scripts/              # Build utilities (icon generation)
