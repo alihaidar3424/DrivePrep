@@ -1,14 +1,16 @@
 import type { MetadataRoute } from "next";
 
+import { BRAND } from "@/lib/brand";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "DrivePrep — Driving Test Practice",
-    short_name: "DrivePrep",
-    description: "Practice driving test MCQs and read driving guidelines in English and Urdu.",
+    name: `${BRAND.nameEn} — ${BRAND.taglineEn}`,
+    short_name: BRAND.nameEn,
+    description: BRAND.descriptionEn,
     start_url: "/",
     display: "standalone",
     background_color: "#f8fafc",
-    theme_color: "#0f172a",
+    theme_color: "#064E3B",
     orientation: "portrait",
     lang: "en",
     icons: [

@@ -1,34 +1,37 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 
-async function createIcon(size, filePath) {
-  const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#2563eb"/>
-    </linearGradient>
-  </defs>
-  <rect width="${size}" height="${size}" rx="${Math.round(size * 0.18)}" fill="url(#g)"/>
-  <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle"
-    fill="white" font-family="system-ui, sans-serif" font-size="${Math.round(size * 0.42)}" font-weight="800">D</text>
-</svg>`;
+const ROOT = process.cwd();
+const markSvg = readFileSync(join(ROOT, "public", "brand", "logo-mark.svg"), "utf8");
 
-  await sharp(Buffer.from(svg)).png().toFile(filePath);
+/** Maskable icon: extra padding so the badge is not clipped on Android. */
+function maskableSvg(size) {
+  const pad = Math.round(size * 0.12);
+  const inner = size - pad * 2;
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+  <rect width="${size}" height="${size}" fill="#064E3B"/>
+  <svg x="${pad}" y="${pad}" width="${inner}" height="${inner}" viewBox="0 0 512 512">
+    ${markSvg.replace(/<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "")}
+  </svg>
+</svg>`;
 }
 
-const outDir = join(process.cwd(), "public", "icons");
+async function writePng(svg, filePath, size) {
+  await sharp(Buffer.from(svg)).resize(size, size).png().toFile(filePath);
+}
+
+const outDir = join(ROOT, "public", "icons");
 mkdirSync(outDir, { recursive: true });
 
-await createIcon(192, join(outDir, "icon-192.png"));
-await createIcon(512, join(outDir, "icon-512.png"));
-await createIcon(512, join(outDir, "icon-512-maskable.png"));
+await writePng(markSvg, join(outDir, "icon-192.png"), 192);
+await writePng(markSvg, join(outDir, "icon-512.png"), 512);
+await writePng(maskableSvg(512), join(outDir, "icon-512-maskable.png"), 512);
 
 writeFileSync(
   join(outDir, "apple-touch-icon.png"),
   await sharp(join(outDir, "icon-192.png")).png().toBuffer(),
 );
 
-console.log("Generated PWA icons in public/icons/");
+console.log("Generated RaahPass PWA icons in public/icons/");

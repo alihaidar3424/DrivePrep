@@ -28,7 +28,10 @@ export function BottomNav({ lang, active }: BottomNavProps) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 z-50 w-full border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
+    <nav
+      className="fixed bottom-0 left-0 z-50 w-full border-t border-border pb-[env(safe-area-inset-bottom)] backdrop-blur-md"
+      style={{ backgroundColor: "var(--nav)" }}
+    >
       <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-2">
         {items.map((item) => {
           const Icon = item.icon;
@@ -38,12 +41,12 @@ export function BottomNav({ lang, active }: BottomNavProps) {
               key={item.key}
               href={item.href}
               className={cn(
-                "flex min-h-11 min-w-[72px] flex-col items-center justify-center rounded-lg px-2 text-xs font-medium transition-colors",
-                isActive ? "text-blue-600" : "text-slate-500 hover:text-slate-900",
+                "flex min-h-11 min-w-[4.5rem] flex-col items-center justify-center rounded-lg px-2 text-xs font-medium transition-colors",
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
               <Icon className="mb-0.5 h-5 w-5" aria-hidden />
-              <span className="truncate">{item.label}</span>
+              <span className="max-w-[4.5rem] truncate">{item.label}</span>
             </Link>
           );
         })}

@@ -32,8 +32,10 @@ export function QuestionGrid({
             onClick={() => onJump(index)}
             className={cn(
               "flex h-9 w-9 items-center justify-center rounded-lg text-xs font-semibold transition-colors",
-              isCurrent && "ring-2 ring-blue-600 ring-offset-1",
-              answered ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-600",
+              isCurrent && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+              answered
+                ? "bg-success-muted text-success"
+                : "bg-muted text-muted-foreground hover:text-foreground",
             )}
             aria-label={`Question ${index + 1}`}
             aria-current={isCurrent ? "step" : undefined}

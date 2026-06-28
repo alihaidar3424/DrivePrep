@@ -5,6 +5,7 @@ Bilingual driving test practice app for Pakistan. Learners take 20-question mock
 - **247 text MCQs** (Phase 1 — no sign images)
 - **70% pass threshold** · server-side scoring · attempt persistence
 - **PWA-ready** (installable, offline fallback)
+- **Light & dark mode** · system preference + manual toggle
 - **Full-stack Next.js** with PostgreSQL via Prisma
 
 ## Tech stack
@@ -90,16 +91,85 @@ scripts/              # Build utilities (icon generation)
 
 ## Deployment (Vercel)
 
-1. Import the repo on [Vercel](https://vercel.com).
-2. Add **`DATABASE_URL`** (Neon or Supabase PostgreSQL connection string).
-3. Deploy — migrations run via `vercel.json` build command.
-4. Seed production **once**:
+### Step 1 — Create a free PostgreSQL database
 
-   ```bash
-   DATABASE_URL="your-production-url" npm run db:seed
-   ```
+Pick one provider below, create a project, and copy the **connection string** (must include `?sslmode=require` for Neon).
 
-## Environment variables
+### Step 2 — Push code to GitHub
+
+Ensure `main` is pushed to https://github.com/alihaidar3424/DrivePrep
+
+### Step 3 — Import on Vercel
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import the **DrivePrep** repository
+3. Framework preset: **Next.js** (auto-detected)
+4. Root directory: `./` (default)
+
+### Step 4 — Environment variables
+
+In **Project → Settings → Environment Variables**, add:
+
+| Name | Value | Environments |
+|------|-------|--------------|
+| `DATABASE_URL` | `postgresql://...` from Neon/Supabase | Production, Preview, Development |
+
+### Step 5 — Deploy
+
+Click **Deploy**. The build runs:
+
+```text
+prisma generate → generate icons → prisma migrate deploy → next build
+```
+
+### Step 6 — Seed production (one time)
+
+From your machine (or Vercel CLI):
+
+```bash
+DATABASE_URL="your-production-connection-string" npm run db:seed
+```
+
+This loads **247 questions** and **8 guidelines**.
+
+### Step 7 — Verify
+
+- Open your Vercel URL (e.g. `https://driveprep.vercel.app`)
+- Visit `/api/health` — should return `{ "status": "ok", "database": "connected" }`
+- Take a full practice test
+
+### Optional — Custom domain
+
+Vercel → Project → **Settings → Domains** → add your domain and update DNS.
+
+---
+
+## Free PostgreSQL providers (recommended)
+
+| Provider | Free tier | Best for | Notes |
+|----------|-----------|----------|-------|
+| **[Neon](https://neon.tech)** | 0.5 GB storage, 1 project | **Recommended for Vercel** | Serverless Postgres, auto-suspend, fast cold start, great Vercel integration |
+| **[Supabase](https://supabase.com)** | 500 MB, 2 projects | Apps that may add auth later | Postgres + optional dashboard; use **direct connection** or **pooler** URL for Prisma |
+| **[Vercel Postgres](https://vercel.com/storage/postgres)** | Via Neon partnership | Simplest Vercel setup | One-click from Vercel dashboard; sets `DATABASE_URL` automatically |
+| **[Railway](https://railway.app)** | $5 trial credit / limited free | Quick experiments | Easy UI; free tier limited over time |
+| **[ElephantSQL](https://www.elephantsql.com)** | Tiny free “Tiny Turtle” plan | Very small MVPs | 20 MB limit — too small for growth |
+| **[Aiven](https://aiven.io)** | Free tier available | EU/regional hosting | Good if you need specific regions |
+
+**Recommendation for DrivePrep:** Use **Neon** or **Vercel Postgres**. Both work well with Prisma on Vercel serverless.
+
+**Neon connection string example:**
+
+```text
+postgresql://user:password@ep-xxxx.region.aws.neon.tech/driveprep?sslmode=require
+```
+
+**Supabase pooler (for serverless):**
+
+```text
+postgresql://postgres.[ref]:[password]@aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true
+```
+
+---
 
 | Variable | Required | Description |
 |----------|----------|-------------|

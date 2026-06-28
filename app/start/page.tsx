@@ -1,5 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { StartForm } from "@/components/start/StartForm";
+import { PageContainer } from "@/components/ui/PageContainer";
+import { mutedTextClassName } from "@/components/ui/Card";
 import { withLang } from "@/lib/language";
 import { resolveLanguage } from "@/lib/resolve-language";
 import { dirForLanguage, t } from "@/lib/translations";
@@ -22,13 +24,13 @@ export default async function StartPage({ searchParams }: StartPageProps) {
       langBasePath="/start"
       backHref={withLang("/", lang)}
     >
-      <main className="mx-auto max-w-lg px-4 py-8">
-        <div className="mb-6 space-y-2">
-          <h1 className="text-2xl font-bold text-slate-900">{t(lang, "startTestTitle")}</h1>
-          <p className="text-slate-600">{t(lang, "driverExam")}</p>
+      <PageContainer withBottomNav className="page-stack">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-foreground">{t(lang, "startTestTitle")}</h1>
+          <p className={mutedTextClassName()}>{t(lang, "driverExam")}</p>
         </div>
         <StartForm lang={lang} />
-      </main>
+      </PageContainer>
     </AppShell>
   );
 }

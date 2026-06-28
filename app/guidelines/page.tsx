@@ -1,5 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { GuidelineCard } from "@/components/guidelines/GuidelineCard";
+import { PageContainer } from "@/components/ui/PageContainer";
+import { mutedTextClassName } from "@/components/ui/Card";
 import { getGuidelines } from "@/lib/guidelines";
 import { resolveLanguage } from "@/lib/resolve-language";
 import { dirForLanguage, t } from "@/lib/translations";
@@ -21,32 +23,26 @@ export default async function GuidelinesPage({ searchParams }: GuidelinesPagePro
   }, {});
 
   return (
-    <AppShell
-      lang={lang}
-      rtl={rtl}
-      nav="guidelines"
-      showBottomNav
-      langBasePath="/guidelines"
-    >
-      <main className="mx-auto max-w-lg space-y-6 px-4 py-8">
+    <AppShell lang={lang} rtl={rtl} nav="guidelines" showBottomNav langBasePath="/guidelines">
+      <PageContainer withBottomNav className="page-stack">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">{t(lang, "guidelinesTitle")}</h1>
-          <p className="mt-2 text-slate-600">{t(lang, "guidelinesSubtitle")}</p>
+          <h1 className="text-2xl font-bold text-foreground">{t(lang, "guidelinesTitle")}</h1>
+          <p className={mutedTextClassName("mt-2")}>{t(lang, "guidelinesSubtitle")}</p>
         </div>
 
         {Object.entries(grouped).map(([category, categoryItems]) => (
-          <section key={category} className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <section key={category} className="section-stack">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {category}
             </h2>
-            <div className="space-y-3">
+            <div className="section-stack">
               {categoryItems.map((item) => (
                 <GuidelineCard key={item.slug} item={item} lang={lang} />
               ))}
             </div>
           </section>
         ))}
-      </main>
+      </PageContainer>
     </AppShell>
   );
 }

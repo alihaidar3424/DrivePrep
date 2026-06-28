@@ -2,6 +2,7 @@ import type { Language } from "@/lib/validations";
 
 type TranslationKey =
   | "appName"
+  | "appTagline"
   | "homeTitle"
   | "homeSubtitle"
   | "startPractice"
@@ -53,6 +54,8 @@ type TranslationKey =
   | "prevArticle"
   | "nextArticle"
   | "startFromGuideline"
+  | "guidelineSources"
+  | "opensInNewTab"
   | "offlineTitle"
   | "offlineMessage"
   | "noExplanation"
@@ -60,13 +63,16 @@ type TranslationKey =
   | "pageNotFoundHint"
   | "errorTitle"
   | "errorHint"
-  | "tryAgainAction";
+  | "tryAgainAction"
+  | "lightMode"
+  | "darkMode";
 
 const en: Record<TranslationKey, string> = {
-  appName: "DrivePrep",
-  homeTitle: "Practice for Your Driving Test",
+  appName: "RaahPass",
+  appTagline: "Pass your driving test",
+  homeTitle: "Your Road to a Driving Licence",
   homeSubtitle:
-    "Master Pakistan's traffic rules and signs with 247+ practice MCQs. No account required.",
+    "Master Pakistan's traffic rules and signs with 247+ practice questions. Free — no account needed.",
   startPractice: "Start Practice Test",
   readGuidelines: "Driving Guidelines",
   language: "Language",
@@ -117,6 +123,8 @@ const en: Record<TranslationKey, string> = {
   prevArticle: "Previous",
   nextArticle: "Next",
   startFromGuideline: "Start Practice Test",
+  guidelineSources: "Official sources",
+  opensInNewTab: "(opens in new tab)",
   offlineTitle: "You're offline",
   offlineMessage: "Check your connection and try again. Quiz submission requires internet.",
   noExplanation: "No explanation available for this question.",
@@ -125,13 +133,16 @@ const en: Record<TranslationKey, string> = {
   errorTitle: "Something went wrong",
   errorHint: "Please try again. If the problem continues, check your connection.",
   tryAgainAction: "Try again",
+  lightMode: "Switch to light mode",
+  darkMode: "Switch to dark mode",
 };
 
 const ur: Record<TranslationKey, string> = {
-  appName: "DrivePrep",
-  homeTitle: "اپنے ڈرائیونگ ٹیسٹ کی تیاری کریں",
+  appName: "راہ پاس",
+  appTagline: "ڈرائیونگ ٹیسٹ پاس کریں",
+  homeTitle: "ڈرائیونگ لائسنس کا راستہ",
   homeSubtitle:
-    "انگریزی اور اردو میں موک ٹیسٹ کے ذریعے ڈرائیونگ لائسنس امتحان کی تیاری کریں۔",
+    "247+ سوالات کے ساتھ پاکستان کے ٹریفک قوانین سیکھیں۔ مفت — اکاؤنٹ کی ضرورت نہیں۔",
   startPractice: "موک ٹیسٹ شروع کریں",
   readGuidelines: "ڈرائیونگ ہدایات",
   language: "زبان",
@@ -182,6 +193,8 @@ const ur: Record<TranslationKey, string> = {
   prevArticle: "پچھلا",
   nextArticle: "اگلا",
   startFromGuideline: "پریکٹس ٹیسٹ شروع کریں",
+  guidelineSources: "سرکاری ماخذ",
+  opensInNewTab: "(نئی ٹیب میں کھلتا ہے)",
   offlineTitle: "آپ آف لائن ہیں",
   offlineMessage: "کنکشن چیک کریں۔ کوئز جمع کرنے کے لیے انternet ضروری ہے۔",
   noExplanation: "اس سوال کی وضاحت دستیاب نہیں۔",
@@ -190,6 +203,8 @@ const ur: Record<TranslationKey, string> = {
   errorTitle: "کچھ غلط ہو گیا",
   errorHint: "دوبارہ کوشش کریں۔ اگر مسئلہ برقرار رہے تو اپنا انternet چیک کریں۔",
   tryAgainAction: "دوبارہ کوشش",
+  lightMode: "روشن موڈ",
+  darkMode: "ڈارک موڈ",
 };
 
 export function t(lang: Language, key: TranslationKey): string {

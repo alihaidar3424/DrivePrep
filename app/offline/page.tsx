@@ -1,6 +1,8 @@
 import { WifiOff } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { LinkButton } from "@/components/ui/Button";
+import { PageContainer } from "@/components/ui/PageContainer";
+import { mutedTextClassName } from "@/components/ui/Card";
 import { resolveLanguage } from "@/lib/resolve-language";
 import { dirForLanguage, t } from "@/lib/translations";
 
@@ -15,14 +17,14 @@ export default async function OfflinePage({ searchParams }: OfflinePageProps) {
 
   return (
     <AppShell lang={lang} rtl={rtl} nav="home" showBottomNav>
-      <main className="mx-auto flex max-w-lg flex-col items-center px-4 py-16 text-center">
-        <WifiOff className="mb-4 h-12 w-12 text-slate-400" />
-        <h1 className="text-2xl font-bold text-slate-900">{t(lang, "offlineTitle")}</h1>
-        <p className="mt-3 max-w-sm text-slate-600">{t(lang, "offlineMessage")}</p>
+      <PageContainer withBottomNav className="flex flex-col items-center py-16 text-center">
+        <WifiOff className="mb-4 h-12 w-12 text-muted-foreground" />
+        <h1 className="text-2xl font-bold text-foreground">{t(lang, "offlineTitle")}</h1>
+        <p className={mutedTextClassName("mt-3 max-w-sm")}>{t(lang, "offlineMessage")}</p>
         <LinkButton href={`/?lang=${lang}`} className="mt-8" variant="secondary">
           {t(lang, "navHome")}
         </LinkButton>
-      </main>
+      </PageContainer>
     </AppShell>
   );
 }

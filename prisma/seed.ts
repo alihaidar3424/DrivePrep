@@ -73,6 +73,9 @@ async function main() {
       contentUr: item.contentUr,
       category: item.category,
       sortOrder: item.sortOrder,
+      imageUrl: item.imageUrl ?? null,
+      imageAltEn: item.imageAltEn ?? null,
+      imageAltUr: item.imageAltUr ?? null,
       isActive: true,
     })),
   });

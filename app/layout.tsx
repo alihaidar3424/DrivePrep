@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Nastaliq_Urdu } from "next/font/google";
+import { BRAND } from "@/lib/brand";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import "./globals.css";
 
@@ -15,14 +17,13 @@ const notoNastaliq = Noto_Nastaliq_Urdu({
 });
 
 export const metadata: Metadata = {
-  title: "DrivePrep — Driving Test Practice",
-  description:
-    "Bilingual driving test practice for Pakistan. Mock exams in English and Urdu.",
-  applicationName: "DrivePrep",
+  title: `${BRAND.nameEn} — ${BRAND.taglineEn}`,
+  description: BRAND.descriptionEn,
+  applicationName: BRAND.nameEn,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "DrivePrep",
+    title: BRAND.nameEn,
   },
   formatDetection: {
     telephone: false,
@@ -30,7 +31,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
+    { media: "(prefers-color-scheme: dark)", color: "#064E3B" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -42,10 +46,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${notoNastaliq.variable} h-full`}>
-      <body className="min-h-full bg-slate-50 font-sans text-slate-900 antialiased">
-        {children}
-        <ServiceWorkerRegister />
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${notoNastaliq.variable} h-full`}>
+      <body className="min-h-full bg-background font-sans text-foreground antialiased">
+        <ThemeProvider>
+          {children}
+          <ServiceWorkerRegister />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -3,8 +3,10 @@ import { cn } from "@/lib/utils";
 import { withLang } from "@/lib/language";
 import type { Language } from "@/lib/validations";
 import { t } from "@/lib/translations";
+import { AppLogo } from "@/components/brand/AppLogo";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 type AppShellProps = {
   lang: Language;
@@ -26,28 +28,34 @@ export function AppShell({
   children,
 }: AppShellProps) {
   return (
-    <div dir={rtl ? "rtl" : "ltr"} className={cn("min-h-dvh bg-slate-50", rtl && "urdu-text")}>
+    <div dir={rtl ? "rtl" : "ltr"} className={cn("min-h-dvh bg-background", rtl && "urdu-text")}>
       <InstallPrompt lang={lang} />
-      <header className="sticky top-0 z-[90] border-b border-slate-200 bg-white/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-4">
-          <div className="flex items-center gap-2">
+      <header
+        className="sticky top-0 z-[90] border-b border-border backdrop-blur-md"
+        style={{ backgroundColor: "var(--header)" }}
+      >
+        <div className="mx-auto flex h-16 max-w-lg items-center justify-between gap-2 px-4 sm:px-5">
+          <div className="flex min-w-0 items-center gap-1">
             {backHref ? (
               <Link
                 href={backHref}
-                className="min-h-11 min-w-11 rounded-full text-sm leading-[44px] text-slate-600 hover:bg-slate-100"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 aria-label={t(lang, "back")}
               >
                 ←
               </Link>
             ) : null}
-            <Link href={withLang("/", lang)} className="text-xl font-black tracking-tight text-slate-900">
-              {t(lang, "appName")}
+            <Link href={withLang("/", lang)} className="min-w-0">
+              <AppLogo lang={lang} size="sm" />
             </Link>
           </div>
-          <LanguagePills lang={lang} basePath={langBasePath} />
+          <div className="flex shrink-0 items-center gap-2">
+            <ThemeToggle lang={lang} />
+            <LanguagePills lang={lang} basePath={langBasePath} />
+          </div>
         </div>
       </header>
-      <div className={cn(showBottomNav && "pb-20")}>{children}</div>
+      {children}
       {showBottomNav && nav !== "none" ? <BottomNav lang={lang} active={nav} /> : null}
     </div>
   );
@@ -55,12 +63,14 @@ export function AppShell({
 
 function LanguagePills({ lang, basePath }: { lang: Language; basePath: string }) {
   return (
-    <div className="flex rounded-full bg-slate-100 p-1">
+    <div className="flex rounded-full bg-muted p-1">
       <Link
         href={withLang(basePath, "en")}
         className={cn(
-          "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-          lang === "en" ? "bg-slate-900 text-white shadow-sm" : "text-slate-600",
+          "rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3",
+          lang === "en"
+            ? "bg-foreground text-background shadow-sm"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         {t(lang, "english")}
@@ -68,8 +78,10 @@ function LanguagePills({ lang, basePath }: { lang: Language; basePath: string })
       <Link
         href={withLang(basePath, "ur")}
         className={cn(
-          "rounded-full px-3 py-1.5 text-xs font-medium transition-colors urdu-text",
-          lang === "ur" ? "bg-slate-900 text-white shadow-sm" : "text-slate-600",
+          "rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors urdu-text sm:px-3",
+          lang === "ur"
+            ? "bg-foreground text-background shadow-sm"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         {t(lang, "urdu")}

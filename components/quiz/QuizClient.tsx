@@ -5,6 +5,8 @@ import { CorrectOption } from "@prisma/client";
 import { OptionButton } from "@/components/quiz/OptionButton";
 import { ProgressBar } from "@/components/quiz/ProgressBar";
 import { QuestionGrid } from "@/components/quiz/QuestionGrid";
+import { PageContainer } from "@/components/ui/PageContainer";
+import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { submitQuizAndRedirect, type QuizQuestionDto } from "@/lib/quiz";
 import { dirForLanguage, t, tf } from "@/lib/translations";
@@ -66,22 +68,16 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
 
   useEffect(() => {
     if (!hydrated) return;
-    const data: SavedProgress = { answers, index };
-    sessionStorage.setItem(storageKey(attemptId), JSON.stringify(data));
+    sessionStorage.setItem(storageKey(attemptId), JSON.stringify({ answers, index }));
   }, [answers, index, attemptId, hydrated]);
 
   function selectOption(option: CorrectOption) {
     if (!current) return;
-    setAnswers((prev) => ({
-      ...prev,
-      [current.attemptQuestionId]: option,
-    }));
+    setAnswers((prev) => ({ ...prev, [current.attemptQuestionId]: option }));
   }
 
   function firstUnansweredIndex(): number {
-    const idx = questions.findIndex(
-      (question) => !answers[question.attemptQuestionId],
-    );
+    const idx = questions.findIndex((q) => !answers[q.attemptQuestionId]);
     return idx === -1 ? 0 : idx;
   }
 
@@ -91,12 +87,10 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
       setIndex(firstUnansweredIndex());
       return;
     }
-
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       setError(t(language, "offlineMessage"));
       return;
     }
-
     setError(null);
     startTransition(async () => {
       try {
@@ -113,27 +107,23 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
 
   if (!hydrated || !current) {
     return (
-      <p className="px-4 py-8 text-center text-slate-600">{t(language, "loading")}</p>
+      <PageContainer>
+        <p className="text-center text-muted-foreground">{t(language, "loading")}</p>
+      </PageContainer>
     );
   }
 
   return (
-    <div className={rtl ? "urdu-text" : ""} dir={dirForLanguage(language)}>
-      <div className="space-y-4 px-4 py-6">
-        <div className="flex items-center justify-between text-sm text-slate-600">
-          <span>
-            {tf(language, "questionOf", {
-              current: index + 1,
-              total: QUIZ_SIZE,
-            })}
-          </span>
+    <div dir={dirForLanguage(language)} className={rtl ? "urdu-text" : ""}>
+      <PageContainer className="section-stack">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>{tf(language, "questionOf", { current: index + 1, total: QUIZ_SIZE })}</span>
           <span>
             {answeredCount}/{QUIZ_SIZE}
           </span>
         </div>
 
         <ProgressBar current={index + 1} total={QUIZ_SIZE} />
-
         <QuestionGrid
           total={questions.length}
           currentIndex={index}
@@ -142,13 +132,13 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
           onJump={setIndex}
         />
 
-        <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-lg font-semibold leading-7 text-slate-900">
+        <Card>
+          <h2 className="text-lg font-semibold leading-7 text-card-foreground">
             {current.questionText}
           </h2>
-        </article>
+        </Card>
 
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {current.options.map((option) => (
             <OptionButton
               key={option.key}
@@ -161,21 +151,20 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
           ))}
         </div>
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-1">
           <Button
             type="button"
             variant="secondary"
             className="flex-1"
             disabled={index === 0}
-            onClick={() => setIndex((value) => Math.max(0, value - 1))}
+            onClick={() => setIndex((v) => Math.max(0, v - 1))}
           >
             {t(language, "previous")}
           </Button>
-
           {index < questions.length - 1 ? (
-            <Button type="button" className="flex-1" onClick={() => setIndex((value) => value + 1)}>
+            <Button type="button" className="flex-1" onClick={() => setIndex((v) => v + 1)}>
               {t(language, "next")}
             </Button>
           ) : (
@@ -184,7 +173,7 @@ export function QuizClient({ attemptId, language, questions }: QuizClientProps) 
             </Button>
           )}
         </div>
-      </div>
+      </PageContainer>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Language } from "@/lib/validations";
+import { guidelines as guidelineSeeds } from "@/data/guidelines";
 
 export type GuidelineListItem = {
   slug: string;
@@ -9,10 +10,17 @@ export type GuidelineListItem = {
   sortOrder: number;
 };
 
+export type GuidelineSourceLinkView = {
+  label: string;
+  url: string;
+};
+
 export type GuidelineDetail = GuidelineListItem & {
   content: string;
   imageUrl: string | null;
   imageAlt: string | null;
+  source: string | null;
+  sourceLinks: GuidelineSourceLinkView[];
 };
 
 function pickLocalized(language: Language, en: string, ur: string): string {
@@ -44,6 +52,16 @@ export async function getGuidelineBySlug(
 
   if (!row) return null;
 
+  const seed = guidelineSeeds.find((item) => item.slug === slug);
+  const source = seed
+    ? pickLocalized(language, seed.sourceEn ?? "", seed.sourceUr ?? "") || null
+    : null;
+  const sourceLinks: GuidelineSourceLinkView[] =
+    seed?.sourceLinks?.map((link) => ({
+      label: pickLocalized(language, link.labelEn, link.labelUr),
+      url: link.url,
+    })) ?? [];
+
   return {
     slug: row.slug,
     title: pickLocalized(language, row.titleEn, row.titleUr),
@@ -55,6 +73,8 @@ export async function getGuidelineBySlug(
     imageAlt: row.imageUrl
       ? pickLocalized(language, row.imageAltEn ?? "", row.imageAltUr ?? "") || null
       : null,
+    source,
+    sourceLinks,
   };
 }
 
