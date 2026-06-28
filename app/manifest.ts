@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: `${BRAND.nameEn} — ${BRAND.taglineEn}`,
     short_name: BRAND.nameEn,
     description: BRAND.descriptionEn,
-    start_url: "/",
+    start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
     display_override: ["standalone", "minimal-ui", "browser"],
@@ -28,6 +28,12 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
+      },
+      {
+        src: "/icons/icon-192-maskable.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "maskable",
       },
       {
         src: "/icons/icon-512.png",

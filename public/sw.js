@@ -1,19 +1,32 @@
-const CACHE = "raahpass-static-v3";
+const CACHE = "raahpass-static-v4";
 const OFFLINE_URL = "/offline";
 
+/** Static assets only — do not precache HTML routes (SSR pages break addAll). */
 const PRECACHE = [
-  "/",
-  "/offline",
+  OFFLINE_URL,
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
+  "/icons/icon-192-maskable.png",
+  "/icons/icon-512-maskable.png",
   "/brand/logo-mark.svg",
 ];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()),
+async function precacheAssets(cacheName, urls) {
+  const cache = await caches.open(cacheName);
+  await Promise.all(
+    urls.map(async (url) => {
+      try {
+        await cache.add(url);
+      } catch {
+        // One failed asset must not block service worker install.
+      }
+    }),
   );
+}
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(precacheAssets(CACHE, PRECACHE).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {

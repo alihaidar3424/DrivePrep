@@ -7,7 +7,7 @@ export function ServiceWorkerRegister() {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
     if (process.env.NODE_ENV !== "production") return;
 
-    navigator.serviceWorker.register("/sw.js").catch(() => {
+    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {
       // Non-fatal: app works without offline caching
     });
   }, []);

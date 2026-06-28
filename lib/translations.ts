@@ -48,6 +48,9 @@ type TranslationKey =
   | "installPrompt"
   | "install"
   | "installing"
+  | "installHintAndroid"
+  | "installHintIos"
+  | "installHintDesktop"
   | "close"
   | "navHome"
   | "back"
@@ -123,6 +126,9 @@ const en: Record<TranslationKey, string> = {
   installPrompt: "Install app for quick access",
   install: "Install",
   installing: "Installing…",
+  installHintAndroid: "Tap ⋮ (menu) → Install app, or Add to Home screen.",
+  installHintIos: "Tap Share → Add to Home Screen.",
+  installHintDesktop: "Use your browser menu to install this app.",
   close: "Close",
   navHome: "Home",
   back: "Back",
@@ -199,6 +205,9 @@ const ur: Record<TranslationKey, string> = {
   installPrompt: "فوری رسائی کے لیے ایپ انسٹال کریں",
   install: "انسٹال",
   installing: "انسٹال ہو رہا ہے…",
+  installHintAndroid: "⋮ (مینو) → Install app یا Add to Home screen پر ٹیپ کریں۔",
+  installHintIos: "Share → Add to Home Screen پر ٹیپ کریں۔",
+  installHintDesktop: "براؤزر مینو سے ایپ انسٹال کریں۔",
   close: "بند",
   navHome: "ہوم",
   back: "واپس",

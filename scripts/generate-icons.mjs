@@ -31,6 +31,7 @@ mkdirSync(outDir, { recursive: true });
 await writePng(markSvg, join(outDir, "icon-192.png"), 192);
 await writePng(markSvg, join(outDir, "icon-512.png"), 512);
 await writePng(maskableSvg(512), join(outDir, "icon-512-maskable.png"), 512);
+await writePng(maskableSvg(192), join(outDir, "icon-192-maskable.png"), 192);
 
 writeFileSync(
   join(outDir, "apple-touch-icon.png"),
